@@ -1,0 +1,22 @@
+### Poshmark Inc.
+# Author: Sarath Pantala
+# Build args
+ARG BASE_IMAGE="ubuntu"
+ARG BASE_IMAGE_VERSION="18.04"
+
+# Base image
+FROM ${BASE_IMAGE}:${BASE_IMAGE_VERSION} as build
+
+# Run commands for docker build
+RUN useradd goshposh \
+  && apt-get update \
+  && apt-get install -y python3-pip python3-dev cron sudo \
+  && usermod -aG sudo goshposh \
+  && cd /usr/local/bin \
+  && ln -s /usr/bin/python3 /usr/bin/python \
+  && pip3 --no-cache-dir install --upgrade pip \
+  && pip3 install boto3==1.14.12 \
+  && pip3 install --upgrade requests \
+  && rm -rf /var/lib/apt/lists/* 
+
+CMD ["/bin/bash"]

@@ -1,0 +1,29 @@
+ARG BASE_IMAGE="ubuntu-python"
+ARG BASE_IMAGE_VERSION="1.0"
+ARG CONFIG_ENV="stage"
+
+#Use the base image for node-js pushed to ecr
+FROM ${BASE_IMAGE}:${BASE_IMAGE_VERSION} as build
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    CONFIG_ENV=${CONFIG_ENV}
+
+RUN mkdir -p /goshposh/backup-logsv2 && \
+    mkdir -p /goshposh/log && \
+    chown -R goshposh:goshposh /goshposh && \
+    touch /var/log/cron.log
+
+COPY --chown=goshposh:goshposh ./src/main.py backup-cron-v2 /goshposh/backup-logsv2
+COPY --chown=goshposh:goshposh ./config/stage.json /goshposh/backup-logsv2/config.json
+
+WORKDIR /goshposh/backup-logsv2
+
+#USER goshposh
+
+#RUN crontab /gosposh/backup-logsv2/backup-cron-v2
+RUN (crontab -l ; cat /goshposh/backup-logsv2/backup-cron-v2) | crontab
+#/etc/cron.d/backup-cron-v2
+#SHELL ["/bin/bash", "-lc"]
+#USER goshposh
+
+CMD cron && tail -f /var/log/cron.log

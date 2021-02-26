@@ -1,0 +1,1 @@
+* * * * * python3 /goshposh/backup-logsv2/main.py >> /var/log/cron.log 2>&1
